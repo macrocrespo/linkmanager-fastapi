@@ -1,0 +1,22 @@
+services:                                  # block that declares the containers Compose manages
+  db:                                       # service name — used for `docker compose up -d db`,
+                                             # and as the internal hostname when another container (e.g. "app") needs to connect
+    image: postgres:16-alpine                # official Postgres image, tag "16-alpine" = version 16 on Alpine Linux (lightweight)
+    container_name: linkmanager_db           # fixed container name in `docker ps` (without this, Compose auto-generates one with the project prefix)
+    restart: unless-stopped                  # restarts the container automatically if it crashes or Docker/Rancher starts up, unless you stopped it manually
+    environment:                             # env vars the Postgres image uses to initialize the DB on first startup
+      POSTGRES_USER: linkmanager              # user created with permissions on POSTGRES_DB
+      POSTGRES_PASSWORD: linkmanager          # that user's password (dev only — don't use this value in production)
+      POSTGRES_DB: linkmanager                # database name automatically created when the container starts
+    ports:
+      - "5432:5432"                          # "<host port>:<container port>" — exposes the container's 5432 on your machine's 5432, to connect via psql/DBeaver/the app from outside Docker
+    volumes:
+      - pgdata:/var/lib/postgresql/data       # persists Postgres data in the named volume "pgdata" (see below) — without this, everything is lost when the container is removed
+    healthcheck:                             # defines how Docker checks whether the container is "healthy", not just "running"
+      test: ["CMD-SHELL", "pg_isready -U linkmanager"]  # command run inside the container to verify Postgres accepts connections
+      interval: 5s                            # how often the check repeats
+      timeout: 5s                             # max time to wait for the check's response before considering it failed
+      retries: 5                              # number of consecutive failures before marking the container as "unhealthy"
+
+volumes:                                   # declaration of named volumes, managed by Docker (not a project folder)
+  pgdata:                                    # volume referenced above — survives `docker compose down` (only removed with `docker compose down -v`)
