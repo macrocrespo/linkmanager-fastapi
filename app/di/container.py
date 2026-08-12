@@ -4,9 +4,14 @@ from app.infrastructure.db.session import get_db_session
 from app.infrastructure.repositories.sqlalchemy_tag_repository import SqlAlchemyTagRepository
 from app.application.use_cases.tag.create_tag import CreateTagUseCase
 from app.application.use_cases.tag.list_tags import ListTagsUseCase
+from app.infrastructure.repositories.sqlalchemy_user_repository import SqlAlchemyUserRepository
+from app.application.use_cases.user.create_user import CreateUserUseCase
 
 def get_create_tag_use_case(session: AsyncSession = Depends(get_db_session)) -> CreateTagUseCase:
     return CreateTagUseCase(SqlAlchemyTagRepository(session))
 
 def get_list_tags_use_case(session: AsyncSession = Depends(get_db_session)) -> ListTagsUseCase:
     return ListTagsUseCase(SqlAlchemyTagRepository(session))
+
+def get_create_user_use_case(session: AsyncSession = Depends(get_db_session)) -> CreateUserUseCase:
+    return CreateUserUseCase(SqlAlchemyUserRepository(session))

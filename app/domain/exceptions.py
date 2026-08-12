@@ -3,3 +3,6 @@ class DomainError(Exception):
 
 class TagAlreadyExists(DomainError):
     pass
+
+class UserAlreadyExists(DomainError):
+    pass

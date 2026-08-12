@@ -4,6 +4,8 @@ from sqlalchemy import text
 from app.infrastructure.db.session import engine
 from app.presentation.api.v1.routers import tags
 from app.domain.exceptions import TagAlreadyExists
+from app.presentation.api.v1.routers import auth
+from app.domain.exceptions import UserAlreadyExists
 
 app = FastAPI(title="Link Manager")
 
@@ -21,4 +23,10 @@ app.include_router(tags.router)
 
 @app.exception_handler(TagAlreadyExists)
 async def tag_already_exists_handler(request: Request, exc: TagAlreadyExists):
+    return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+app.include_router(auth.router)
+
+@app.exception_handler(UserAlreadyExists)
+async def user_already_exists_handler(request: Request, exc: UserAlreadyExists):
     return JSONResponse(status_code=409, content={"detail": str(exc)})
