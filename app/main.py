@@ -6,6 +6,7 @@ from app.presentation.api.v1.routers import tags
 from app.domain.exceptions import TagAlreadyExists
 from app.presentation.api.v1.routers import auth
 from app.domain.exceptions import UserAlreadyExists
+from app.domain.exceptions import InvalidCredentials
 
 app = FastAPI(title="Link Manager")
 
@@ -30,3 +31,7 @@ app.include_router(auth.router)
 @app.exception_handler(UserAlreadyExists)
 async def user_already_exists_handler(request: Request, exc: UserAlreadyExists):
     return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+@app.exception_handler(InvalidCredentials)
+async def invalid_credentials_handler(request: Request, exc: InvalidCredentials):
+    return JSONResponse(status_code=401, content={"detail": str(exc)})

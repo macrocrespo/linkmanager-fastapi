@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends
 from app.application.use_cases.user.create_user import CreateUserUseCase
 from app.di.container import get_create_user_use_case
 from app.presentation.api.v1.schemas.user_schema import UserCreateSchema, UserPublicSchema
+from fastapi.security import OAuth2PasswordRequestForm
+from app.application.use_cases.user.authenticate_user import AuthenticateUserUseCase
+from app.di.container import get_authenticate_user_use_case
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -14,3 +17,14 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 async def register(payload: UserCreateSchema, use_case: CreateUserUseCase = Depends(get_create_user_use_case)):
     user = await use_case.execute(payload.email, payload.password)
     return UserPublicSchema(id=user.id, email=user.email, role=user.role.value)
+
+@router.post("/login")
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    use_case: AuthenticateUserUseCase = Depends(get_authenticate_user_use_case),
+):
+    token = await use_case.execute(form_data.username, form_data.password)
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }

@@ -6,3 +6,6 @@ class TagAlreadyExists(DomainError):
 
 class UserAlreadyExists(DomainError):
     pass
+
+class InvalidCredentials(DomainError):
+    pass
