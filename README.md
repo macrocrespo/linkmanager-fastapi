@@ -15,3 +15,11 @@ This project is an API developed using Python, FastAPI, Clean Architecture, and 
 - **FastAPI** + **SQLAlchemy 2.0 (async)** + **Alembic**
 - **PostgreSQL**, containerized via Docker (Rancher Desktop)
 - **pytest** for testing, **CircleCI** + **Coveralls** planned for CI/coverage
+
+
+## Running the application
+
+```bash
+.venv\Scripts\activate
+uvicorn app.main:app --reload
+```

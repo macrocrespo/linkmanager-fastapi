@@ -2,11 +2,11 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from app.infrastructure.db.session import engine
-from app.presentation.api.v1.routers import tags
 from app.domain.exceptions import TagAlreadyExists
-from app.presentation.api.v1.routers import auth
 from app.domain.exceptions import UserAlreadyExists
 from app.domain.exceptions import InvalidCredentials
+
+from app.presentation.api.v1.routers import tags, auth, links
 
 app = FastAPI(title="Link Manager")
 
@@ -21,12 +21,12 @@ async def health():
     return {"status": "ok"}
 
 app.include_router(tags.router)
+app.include_router(auth.router)
+app.include_router(links.router)
 
 @app.exception_handler(TagAlreadyExists)
 async def tag_already_exists_handler(request: Request, exc: TagAlreadyExists):
     return JSONResponse(status_code=409, content={"detail": str(exc)})
-
-app.include_router(auth.router)
 
 @app.exception_handler(UserAlreadyExists)
 async def user_already_exists_handler(request: Request, exc: UserAlreadyExists):
