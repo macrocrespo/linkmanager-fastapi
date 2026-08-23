@@ -9,3 +9,6 @@ class UserAlreadyExists(DomainError):
 
 class InvalidCredentials(DomainError):
     pass
+
+class UserNotFound(DomainError):
+    pass

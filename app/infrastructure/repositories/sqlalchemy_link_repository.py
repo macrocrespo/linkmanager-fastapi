@@ -6,6 +6,8 @@ from app.domain.entities.tag import Tag
 from app.domain.repositories.link_repository import LinkRepository
 from app.infrastructure.db.models.link_model import LinkModel
 from app.infrastructure.db.models.tag_model import TagModel
+from app.infrastructure.db.models.link_tag_model import link_tag_table
+
 
 class SqlAlchemyLinkRepository(LinkRepository):
     def __init__(self, session: AsyncSession):
@@ -69,8 +71,8 @@ class SqlAlchemyLinkRepository(LinkRepository):
         return [self._to_entity(m) for m in result.scalars().all()]
 
     async def delete_by_owner(self, owner_id: int) -> None:
-        stmt = (
-            delete(LinkModel)
-            .where(LinkModel.owner_id == owner_id)
+        link_ids_subq = select(LinkModel.id).where(LinkModel.owner_id == owner_id)
+        await self._session.execute(
+            delete(link_tag_table).where(link_tag_table.c.link_id.in_(link_ids_subq))
         )
-        await self._session.execute(stmt)
+        await self._session.execute(delete(LinkModel).where(LinkModel.owner_id == owner_id))

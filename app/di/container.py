@@ -14,6 +14,9 @@ from app.infrastructure.repositories.sqlalchemy_link_repository import SqlAlchem
 from app.application.use_cases.link.create_link import CreateLinkUseCase
 from app.application.use_cases.link.list_links import ListLinksUseCase
 
+from app.infrastructure.db.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
+from app.application.use_cases.user.delete_user import DeleteUserUseCase
+
 def get_create_tag_use_case(session: AsyncSession = Depends(get_db_session)) -> CreateTagUseCase:
     return CreateTagUseCase(SqlAlchemyTagRepository(session))
 
@@ -31,3 +34,6 @@ def get_create_link_use_case(session: AsyncSession = Depends(get_db_session)) ->
 
 def get_list_links_use_case(session: AsyncSession = Depends(get_db_session)) -> ListLinksUseCase:
     return ListLinksUseCase(SqlAlchemyLinkRepository(session))
+
+def get_delete_user_use_case(session: AsyncSession = Depends(get_db_session)) -> DeleteUserUseCase:
+    return DeleteUserUseCase(SqlAlchemyUnitOfWork(session))

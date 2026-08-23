@@ -5,6 +5,7 @@ from app.infrastructure.db.session import engine
 from app.domain.exceptions import TagAlreadyExists
 from app.domain.exceptions import UserAlreadyExists
 from app.domain.exceptions import InvalidCredentials
+from app.domain.exceptions import UserNotFound
 
 from app.presentation.api.v1.routers import tags, auth, links
 
@@ -35,3 +36,9 @@ async def user_already_exists_handler(request: Request, exc: UserAlreadyExists):
 @app.exception_handler(InvalidCredentials)
 async def invalid_credentials_handler(request: Request, exc: InvalidCredentials):
     return JSONResponse(status_code=401, content={"detail": str(exc)})
+
+@app.exception_handler(UserNotFound)
+async def user_not_found_handler(request: Request, exc: UserNotFound):
+    return JSONResponse(status_code=404, content={
+        "detail": str(exc)
+    })
