@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from app.application.use_cases.link.create_link import CreateLinkUseCase
 from app.application.use_cases.link.list_links import ListLinksUseCase
 from app.di.container import get_create_link_use_case, get_list_links_use_case
 from app.presentation.api.v1.schemas.link_schema import LinkCreateSchema, LinkPublicSchema
 from app.presentation.api.v1.dependencies import get_current_user
 from app.domain.entities.user import User
+from app.application.strategies.link_filter.by_tag import ByTagStrategy
+from app.application.strategies.link_filter.no_filter import NoFilterStrategy
 
 router = APIRouter(prefix="/api/v1/links", tags=["links"])
 
@@ -34,12 +36,12 @@ async def create_link(
 
 @router.get("", response_model=list[LinkPublicSchema])
 async def list_links(
+    tag: str | None = Query(default=None, description="Exact tag name to filter by"),
+    limit: int = Query(default=20, le=100),
+    offset: int = Query(default=0, ge=0),
     current_user: User = Depends(get_current_user),
     use_case: ListLinksUseCase = Depends(get_list_links_use_case),
 ):
-    links = await use_case.execute(
-        current_user.id,
-        limit=20,
-        offset=0
-    )
+    strategy = ByTagStrategy(tag) if tag else NoFilterStrategy()
+    links = await use_case.execute(current_user.id, strategy, limit, offset)
     return [_to_public(link) for link in links]

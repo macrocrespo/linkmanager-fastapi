@@ -76,3 +76,16 @@ class SqlAlchemyLinkRepository(LinkRepository):
             delete(link_tag_table).where(link_tag_table.c.link_id.in_(link_ids_subq))
         )
         await self._session.execute(delete(LinkModel).where(LinkModel.owner_id == owner_id))
+
+    async def list_by_tag(self, owner_id: int, tag_name: str, limit: int, offset: int) -> list[Link]:
+        stmt = (
+            select(LinkModel)
+            .join(LinkModel.tags)
+            .options(selectinload(LinkModel.tags))
+            .where(LinkModel.owner_id == owner_id, TagModel.name == tag_name)
+            .limit(limit)
+            .offset(offset)
+        )
+        result = await self._session.execute(stmt)
+        links = result.scalars().all()
+        return [self._to_entity(link) for link in links]

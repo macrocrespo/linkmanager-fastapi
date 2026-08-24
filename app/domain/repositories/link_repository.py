@@ -13,3 +13,6 @@ class LinkRepository(ABC):
 
     @abstractmethod
     async def delete_by_owner(self, owner_id: int) -> None: ...
+
+    @abstractmethod
+    async def list_by_tag(self, owner_id: int, tag_name: str, limit: int, offset: int) -> list[Link]: ...
